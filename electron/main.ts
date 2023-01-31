@@ -1,9 +1,17 @@
-const { app, BrowserWindow, screen: electronScreen } = require("electron");
+const {
+  app,
+  ipcMain,
+  ipcRenderer,
+  BrowserWindow,
+  screen: electronScreen,
+} = require("electron");
 const mongoose = require("mongoose");
 const optionDB = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 };
+
+// const Profile = require("electron/models/Profile");
 
 const createMainWindow = () => {
   let mainWindow = new BrowserWindow({
@@ -30,12 +38,20 @@ const createMainWindow = () => {
 app.whenReady().then(async () => {
   createMainWindow();
   console.log("Yo");
-  try {
-    await mongoose.connect("mongodb://localhost/Test_Data", optionDB);
-    console.log("DB is connected");
-  } catch (e) {
-    console.log(e);
-  }
+
+  mongoose
+    .connect("mongodb://127.0.0.1:27017/Test_Data", optionDB)
+    .then((db) => console.log("DB is connected"))
+    .catch((err) => console.log(err));
+
+  const profile = mongoose.model("profiles", {
+    firstName: { type: String },
+    lastName: { type: String },
+  });
+
+
+  var testing = await profile.find({});
+  console.log("First function call ", testing);
 
   app.on("activate", () => {
     if (!BrowserWindow.getAllWindows().length) {
@@ -49,3 +65,10 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+// ipcMain.handle("getProfile", async (e, args) => {
+//   console.log("im comming here");
+//   const profile = await Profile.find().lean();
+//   e.reply("profile", JSON.stringify(profile));
+//   console.log("profile", profile);
+// });
