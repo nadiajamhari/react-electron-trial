@@ -1,4 +1,9 @@
 const { app, BrowserWindow, screen: electronScreen } = require("electron");
+const mongoose = require("mongoose");
+const optionDB = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
 
 const createMainWindow = () => {
   let mainWindow = new BrowserWindow({
@@ -10,6 +15,7 @@ const createMainWindow = () => {
       nodeIntegration: false,
     },
   });
+
   const startURL = "http://localhost:3000";
 
   mainWindow.loadURL(startURL);
@@ -21,8 +27,15 @@ const createMainWindow = () => {
   });
 };
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createMainWindow();
+  console.log("Yo");
+  try {
+    await mongoose.connect("mongodb://localhost/Test_Data", optionDB);
+    console.log("DB is connected");
+  } catch (e) {
+    console.log(e);
+  }
 
   app.on("activate", () => {
     if (!BrowserWindow.getAllWindows().length) {
